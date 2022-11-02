@@ -16,7 +16,7 @@ class MAProcess:
 class MA2Prior:
     def rvs(self):
         theta1 = stats.uniform.rvs(-2, 4, size=None)
-        theta2 = stats.uniform.rvs(np.abs(theta1), 1, size=None)
+        theta2 = stats.uniform.rvs(np.abs(theta1)-1, 2-np.abs(theta1))
         return [theta1, theta2]
 
     def cdf(self, theta1, theta2):
