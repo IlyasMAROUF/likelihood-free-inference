@@ -17,7 +17,7 @@ def rejection_sampler(data, prior, likelihood, N, eps):
             theta_sim = prior.rvs(size=None)
             likelihood.params = theta_sim
             data_sim = likelihood.rvs(size=len(data))
-            dist = dist(data, data_sim)
+            dist = samples_dist(data, data_sim)
         theta_sample[i] = theta_sim
     return theta_sample
 
@@ -41,15 +41,15 @@ def mcmc_sampler(data, prior, likelihood, markov_kernel, mkvar, N, eps):
 
     for i in range(1, N):
         theta_prop = markov_kernel(theta_chain[i-1], mkvar).rvs(size=None)
-        likelihood.params = theta_prop
-        data_sim = likelihood.rvs(size=len(data))
+        data_sim = likelihood(*theta_prop).rvs(size=len(data))
         dist = samples_dist(data, data_sim)
 
         u = stats.uniform.rvs(0, 1, size=None)
-        r = (prior.cdf(theta_prop) * markov_kernel(theta_prop, mkvar).cdf(theta_chain[i-1])) / \
-            prior.cdf(theta_chain[i-1] * markov_kernel(theta_chain[i-1], mkvar).cdf(theta_prop))
+        r = prior.cdf(theta_prop) * markov_kernel(theta_prop, mkvar).cdf(theta_chain[i-1]) / \
+            prior.cdf(theta_chain[i-1]) * markov_kernel(theta_chain[i-1], mkvar).cdf(theta_prop)
         if u <= r and dist <= eps:
             theta_chain[i] = theta_prop
         else:
             theta_chain[i] = theta_chain[i-1]
+
     return theta_chain
