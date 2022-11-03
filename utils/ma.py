@@ -13,16 +13,25 @@ class MAProcess:
         return z
 
 
+class Theta1Prior(stats.rv_continuous):
+    def _pdf(self, theta1):
+        if -2 < theta1 and theta1 < 2:
+            return (2 - np.abs(theta1)) / 4
+        else:
+            return 0
+
+
 class MA2Prior:
-    def rvs(self):
-        theta1 = stats.uniform.rvs(-2, 4, size=None)
-        theta2 = stats.uniform.rvs(np.abs(theta1), 1, size=None)
-        return [theta1, theta2]
+    def __init__(self):
+        self.theta1prior = Theta1Prior()
+
+    def rvs(self, size=None):
+        theta1 = self.theta1prior.rvs(size=size)
+        theta2 = stats.uniform.rvs(np.abs(theta1), 2-np.abs(theta1), size=size)
+        return np.c[theta1, theta2]
 
     def cdf(self, theta1, theta2):
-        theta1_prob = stats.uniform(-2, 4).cdf(theta1)
-        theta2_prob = stats.uniform(np.abs(theta1)-1, 2-np.abs(theta1)).cdf(theta2)
-        return theta1_prob * theta2_prob
+        return 1/4
 
 
 def autocovariance(ts, k):
