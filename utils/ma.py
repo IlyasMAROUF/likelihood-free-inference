@@ -15,17 +15,17 @@ class MAProcess:
 
 class Theta1Prior(stats.rv_continuous):
     def _pdf(self, theta1):
-        return (2 - np.abs(theta1)) / 4 if -2 < theta1 and theta1 < 2 else 0
+        return (2 - np.abs(theta1)) / 4 
 
 
 class MA2Prior:
     def __init__(self):
-        self.theta1prior = Theta1Prior()
+        self.theta1prior = Theta1Prior(a=-2,b=2)
 
     def rvs(self, size=None):
         theta1 = self.theta1prior.rvs(size=size)
         theta2 = stats.uniform.rvs(np.abs(theta1), 2-np.abs(theta1), size=size)
-        return np.c[theta1, theta2] if size != None else [theta1, theta2]
+        return np.array([theta1, theta2]) 
 
     def cdf(self, theta1, theta2):
         return 1/4
